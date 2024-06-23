@@ -55,6 +55,8 @@
         let score = 0;
         let gameOver = false;
         let frames = 0;
+        let countdown = 3;
+        let gameStarted = false;
 
         // Audio
         const jumpSound = new Audio('https://freesound.org/data/previews/341/341695_5858296-lq.mp3');
@@ -91,7 +93,7 @@
             if (e.code === 'Space') {
                 if (gameOver) {
                     resetGame();
-                } else {
+                } else if (gameStarted) {
                     bird.velocity = bird.jump;
                     jumpSound.play();
                 }
@@ -99,7 +101,7 @@
         });
 
         document.addEventListener('mousedown', (e) => {
-            if (!gameOver && !laser) {
+            if (!gameOver && gameStarted && !laser) {
                 laser = { x: bird.x + bird.width, y: bird.y + bird.height / 2 };
                 laserSound.play();
             }
@@ -117,6 +119,8 @@
             score = 0;
             gameOver = false;
             frames = 0;
+            countdown = 3;
+            gameStarted = false;
         }
 
         function createInvader() {
@@ -142,6 +146,17 @@
 
         function update() {
             if (gameOver) return;
+
+            if (!gameStarted) {
+                if (frames % 60 === 0) {
+                    countdown--;
+                    if (countdown === 0) {
+                        gameStarted = true;
+                    }
+                }
+                frames++;
+                return;
+            }
 
             frames++;
 
@@ -229,6 +244,12 @@
             ctx.fillStyle = '#fff';
             ctx.font = '20px Arial';
             ctx.fillText(`Score: ${score}`, 10, 30);
+
+            if (!gameStarted) {
+                ctx.fillStyle = '#fff';
+                ctx.font = '40px Arial';
+                ctx.fillText(`${countdown}`, canvas.width / 2 - 20, canvas.height / 2);
+            }
 
             if (gameOver) {
                 ctx.fillStyle = '#fff';
